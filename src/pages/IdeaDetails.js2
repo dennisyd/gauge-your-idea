@@ -1,0 +1,104 @@
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import VoteForm from '../components/VoteForm';
+
+function IdeaDetails() {
+  const [idea, setIdea] = useState(null);
+  const [vote, setVote] = useState('');
+  const [voterType, setVoterType] = useState('');
+  const [location, setLocation] = useState('');
+  const [comment, setComment] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [voteSubmitting, setVoteSubmitting] = useState(false);
+  const { id } = useParams();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchIdea = async () => {
+      try {
+        setLoading(true);
+        const token = localStorage.getItem('token');
+        if (!token) {
+          throw new Error('No authentication token found');
+        }
+        const response = await axios.get(`/api/ideas/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setIdea(response.data);
+      } catch (err) {
+        setError(err.response?.data?.message || err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchIdea();
+  }, [id]);
+
+  const handleVote = async (e) => {
+    e.preventDefault();
+    try {
+      setVoteSubmitting(true);
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+      const response = await axios.post(
+        `/api/ideas/${id}/vote`,
+        { score: parseInt(vote), voterType, location, comment },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setIdea(response.data.idea);
+      setVote('');
+      setVoterType('');
+      setLocation('');
+      setComment('');
+    } catch (err) {
+      setError(err.response?.data?.message || err.message);
+    } finally {
+      setVoteSubmitting(false);
+    }
+  };
+
+  if (loading) return <div className="text-center mt-8">Loading...</div>;
+  if (error) return <div className="text-center mt-8 text-red-500">Error: {error}</div>;
+  if (!idea) return <div className="text-center mt-8">No idea found</div>;
+
+  return (
+    <div className="max-w-4xl mx-auto p-6">
+      <h1 className="text-3xl font-bold mb-6">{idea.title}</h1>
+      <div className="bg-white p-6 rounded shadow mb-6">
+        <p className="text-gray-700 mb-4">{idea.description}</p>
+        <p className="text-sm text-gray-500">Target Audience: {idea.targetAudience}</p>
+        <p className="text-sm text-gray-500">Industry: {idea.industry}</p>
+        <p className="text-sm text-gray-500 mt-2">Total Votes: {idea.votes.length}</p>
+        {idea.creator === localStorage.getItem('userId') && idea.votes.length > 0 && (
+          <p className="text-sm text-gray-500">
+            Average Score: {(idea.votes.reduce((sum, vote) => sum + vote.score, 0) / idea.votes.length).toFixed(1)}
+          </p>
+        )}
+      </div>
+      <VoteForm
+        vote={vote}
+        setVote={setVote}
+        voterType={voterType}
+        setVoterType={setVoterType}
+        location={location}
+        setLocation={setLocation}
+        comment={comment}
+        setComment={setComment}
+        handleVote={handleVote}
+        voteSubmitting={voteSubmitting}
+      />
+      <button
+        onClick={() => navigate('/')}
+        className="mt-4 bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+      >
+        Back to Ideas
+      </button>
+    </div>
+  );
+}
+
+export default IdeaDetails;
