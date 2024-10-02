@@ -47,7 +47,9 @@ const IdeaSchema = new mongoose.Schema({
     voterType: {
       type: String,
       enum: ['General Enthusiast', 'Industry Expert', 'Experienced Entrepreneur', 'Potential Customer/User']
-    }
+    },
+    location: String,
+    comment: String
   }],
   createdAt: { type: Date, default: Date.now }
 });
@@ -185,11 +187,12 @@ app.get('/api/ideas/:id/report', auth, async (req, res) => {
   }
 });
 
-
 // Get all ideas route
 app.get('/api/ideas', async (req, res) => {
   try {
+    console.log('Fetching all ideas...');
     const ideas = await Idea.find().populate('creator', 'name email').sort({ createdAt: -1 });
+    console.log(`Successfully fetched ${ideas.length} ideas`);
     res.json(ideas);
   } catch (error) {
     console.error('Fetch Ideas Error:', error);
@@ -217,6 +220,8 @@ app.post('/api/ideas/:id/vote', auth, async (req, res) => {
     const { id } = req.params;
     const { score, voterType, location, comment } = req.body;
 
+    console.log('Received vote data:', { score, voterType, location, comment });
+
     if (score < 1 || score > 10) {
       return res.status(400).json({ message: 'Invalid vote score. Must be between 1 and 10.' });
     }
@@ -232,15 +237,19 @@ app.post('/api/ideas/:id/vote', auth, async (req, res) => {
 
     const existingVoteIndex = idea.votes.findIndex(vote => vote.user.toString() === req.userId);
 
+    const voteData = { user: req.userId, score, voterType, location, comment };
+    console.log('Saving vote data:', voteData);
+
     if (existingVoteIndex !== -1) {
       // Update existing vote
-      idea.votes[existingVoteIndex] = { user: req.userId, score, voterType, location, comment };
+      idea.votes[existingVoteIndex] = voteData;
     } else {
       // Add new vote
-      idea.votes.push({ user: req.userId, score, voterType, location, comment });
+      idea.votes.push(voteData);
     }
 
     await idea.save();
+    console.log('Updated idea:', idea);
 
     res.json({ idea });
   } catch (error) {

@@ -43,11 +43,13 @@ function IdeaDetails() {
       if (!token) {
         throw new Error('No authentication token found');
       }
+      console.log('Submitting vote with data:', { score: parseInt(vote), voterType, location, comment }); // Add this line for debugging
       const response = await axios.post(
         `/api/ideas/${id}/vote`,
         { score: parseInt(vote), voterType, location, comment },
         { headers: { Authorization: `Bearer ${token}` } }
       );
+      console.log('Vote submission response:', response.data); // Add this line for debugging
       setIdea(response.data.idea);
       setVote('');
       setVoterType('');
