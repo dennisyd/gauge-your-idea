@@ -1,4 +1,3 @@
-// File: src/App.js
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
@@ -7,7 +6,8 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import SubmitIdea from './pages/SubmitIdea';
 import IdeaDetails from './pages/IdeaDetails';
-import Reports from './pages/Reports'; // Import the Reports component
+import PersonalIdeas from './pages/PersonalIdeas';
+import Reports from './pages/Reports';
 
 function App() {
   return (
@@ -21,7 +21,8 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/submit-idea" element={<SubmitIdea />} />
             <Route path="/idea/:id" element={<IdeaDetails />} />
-            <Route path="/reports" element={<Reports />} /> {/* Add this line */}
+            <Route path="/my-ideas" element={<PersonalIdeas />} />
+            <Route path="/reports" element={<Reports />} />
           </Routes>
         </main>
       </div>
