@@ -17,7 +17,7 @@ function Login() {
       const response = await axios.post('/api/auth/login', { email, password });
       const { token, userId } = response.data;
       login(token, userId);
-      navigate('/');
+      navigate('/app');  // Redirect to /app after successful login
     } catch (err) {
       setError('Failed to log in. Please check your credentials.');
       console.error('Login error:', err);
