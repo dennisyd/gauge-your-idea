@@ -7,6 +7,7 @@ import Register from './pages/Register';
 import SubmitIdea from './pages/SubmitIdea';
 import IdeaDetails from './pages/IdeaDetails';
 import PersonalIdeas from './pages/PersonalIdeas';
+import AppPage from './pages/AppPage'; // Import AppPage component
 import Reports from './pages/Reports';
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
                   <Routes>
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
+                    <Route path="/app" element={<AppPage />} /> {/* Use AppPage here */}
                     <Route path="/submit-idea" element={<SubmitIdea />} />
                     <Route path="/idea/:id" element={<IdeaDetails />} />
                     <Route path="/my-ideas" element={<PersonalIdeas />} />
