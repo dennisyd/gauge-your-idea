@@ -9,24 +9,32 @@ function PersonalIdeas() {
   const { auth } = useContext(AuthContext);
 
   useEffect(() => {
-    const fetchIdeas = async () => {
-      try {
-        console.log('Fetching ideas...');
-        const response = await axios.get('/api/user/ideas', {
-          headers: { Authorization: `Bearer ${auth.token}` }
-        });
-        console.log('Response:', response.data);
-        setIdeas(response.data);
-        setLoading(false);
-      } catch (err) {
-        console.error('Error fetching ideas:', err.response ? err.response.data : err.message);
-        setError(`Failed to fetch ideas. ${err.response ? err.response.data.message : err.message}`);
-        setLoading(false);
-      }
-    };
-
     fetchIdeas();
   }, [auth.token]);
+
+  const fetchIdeas = async () => {
+    try {
+      const response = await axios.get('/api/user/ideas', {
+        headers: { Authorization: `Bearer ${auth.token}` }
+      });
+      setIdeas(response.data);
+      setLoading(false);
+    } catch (err) {
+      setError(`Failed to fetch ideas. ${err.response ? err.response.data.message : err.message}`);
+      setLoading(false);
+    }
+  };
+
+  const deleteIdea = async (ideaId) => {
+    try {
+      await axios.delete(`/api/ideas/${ideaId}`, {
+        headers: { Authorization: `Bearer ${auth.token}` }
+      });
+      setIdeas(ideas.filter(idea => idea._id !== ideaId));
+    } catch (err) {
+      setError(`Failed to delete idea. ${err.response ? err.response.data.message : err.message}`);
+    }
+  };
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div className="text-red-500">{error}</div>;
@@ -45,6 +53,12 @@ function PersonalIdeas() {
               <p>Target Audience: {idea.targetAudience}</p>
               <p>Industry: {idea.industry}</p>
               <p>Created: {new Date(idea.createdAt).toLocaleDateString()}</p>
+              <button
+                onClick={() => deleteIdea(idea._id)}
+                className="mt-2 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+              >
+                Delete
+              </button>
             </li>
           ))}
         </ul>
