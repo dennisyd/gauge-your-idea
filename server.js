@@ -155,7 +155,7 @@ app.post('/api/ideas', auth, async (req, res) => {
 // Route to get user's ideas
 app.get('/api/user/ideas', auth, async (req, res) => {
   try {
-    const ideas = await Idea.find({ creator: req.userId }).select('title createdAt');
+    const ideas = await Idea.find({ creator: req.userId }).select('title description targetAudience industry createdAt');
     res.json(ideas);
   } catch (error) {
     console.error('Fetch User Ideas Error:', error);
