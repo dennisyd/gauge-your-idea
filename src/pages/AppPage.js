@@ -77,7 +77,9 @@ function AppPage() {
               >
                 <div className="p-6">
                   <h3 className="font-bold text-2xl text-blue-800 mb-4">{idea.title}</h3>
-                  <p className="text-gray-700 mb-4">{idea.description}</p>
+                  <p className="text-gray-700 mb-4">
+                    {idea.description.length > 150 ? `${idea.description.substring(0, 150)}...` : idea.description}
+                  </p>
                   <p className="text-sm text-gray-700">
                     <strong>Target Audience:</strong> {idea.targetAudience}
                   </p>
