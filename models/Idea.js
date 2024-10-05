@@ -1,22 +1,25 @@
-const mongoose = require('mongoose');
-
-const IdeaSchema = new mongoose.Schema({
-  title: { type: String, required: true },
-  description: String,
-  targetAudience: String,
-  industry: String,
-  creator: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-  votes: [{
-    user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    score: { type: Number, min: 1, max: 10 },
-    voterType: {
-      type: String,
-      enum: ['General Enthusiast', 'Industry Expert', 'Experienced Entrepreneur', 'Potential Customer/User']
-    },
-    location: String,
-    comment: String  // Add this line
-  }],
-  createdAt: { type: Date, default: Date.now }
+// Correct order for route definitions
+router.get('/other-users', verifyToken, async (req, res) => {
+  try {
+    const userId = req.user.id; // Get user id from the authenticated user
+    const ideas = await Idea.find({ creator: { $ne: userId } }).populate('creator', 'name');
+    res.status(200).json(ideas);
+  } catch (error) {
+    console.error('Error fetching other users\' ideas:', error);
+    res.status(500).json({ message: 'Server Error: Unable to fetch ideas.' });
+  }
 });
 
-module.exports = mongoose.model('Idea', IdeaSchema);
+// Define this route AFTER all specific routes
+router.get('/:id', async (req, res) => {
+  try {
+    const idea = await Idea.findById(req.params.id);
+    if (!idea) {
+      return res.status(404).json({ message: 'Idea not found' });
+    }
+    res.json(idea);
+  } catch (error) {
+    console.error('Error fetching idea:', error);
+    res.status(500).json({ message: 'Server Error: Unable to fetch idea.' });
+  }
+});

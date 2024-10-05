@@ -77,16 +77,11 @@ app.get('/api/health-check', (req, res) => {
 
 // Register route
 app.post('/api/auth/register', async (req, res) => {
+  const { name, email, password } = req.body;
   try {
-    const { name, email, password } = req.body;
-
-    if (!name || !email || !password) {
-      return res.status(400).json({ message: 'Please provide name, email, and password.' });
-    }
-
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ message: 'User with this email already exists.' });
+      return res.status(400).json({ message: 'User already exists' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -94,22 +89,16 @@ app.post('/api/auth/register', async (req, res) => {
     await user.save();
 
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET || 'your_jwt_secret', { expiresIn: '1h' });
-    res.status(201).json({ token });
+    res.status(201).json({ token, userId: user._id });
   } catch (error) {
-    console.error('Registration Error:', error);
-    res.status(500).json({ message: 'Error registering user', error: error.message });
+    res.status(500).json({ message: 'Registration failed. Please try again.' });
   }
 });
 
 // Login route
 app.post('/api/auth/login', async (req, res) => {
+  const { email, password } = req.body;
   try {
-    const { email, password } = req.body;
-
-    if (!email || !password) {
-      return res.status(400).json({ message: 'Please provide email and password.' });
-    }
-
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(400).json({ message: 'Invalid credentials' });
@@ -121,22 +110,16 @@ app.post('/api/auth/login', async (req, res) => {
     }
 
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET || 'your_jwt_secret', { expiresIn: '1h' });
-    res.json({ token });
+    res.status(200).json({ token, userId: user._id });
   } catch (error) {
-    console.error('Login Error:', error);
-    res.status(500).json({ message: 'Error logging in', error: error.message });
+    res.status(500).json({ message: 'Login failed. Please try again.' });
   }
 });
 
 // Submit idea route
 app.post('/api/ideas', auth, async (req, res) => {
+  const { title, description, targetAudience, industry } = req.body;
   try {
-    const { title, description, targetAudience, industry } = req.body;
-
-    if (!title) {
-      return res.status(400).json({ message: 'Title is required.' });
-    }
-
     const idea = new Idea({
       title,
       description,
@@ -147,114 +130,69 @@ app.post('/api/ideas', auth, async (req, res) => {
     await idea.save();
     res.status(201).json(idea);
   } catch (error) {
-    console.error('Submit Idea Error:', error);
-    res.status(500).json({ message: 'Error submitting idea', error: error.message });
+    res.status(500).json({ message: 'Failed to submit idea. Please try again.' });
   }
 });
 
-// Route to get user's ideas
+// Route to get ideas excluding those from the logged-in user
+app.get('/api/ideas/other-users', auth, async (req, res) => {
+  try {
+    const userId = req.userId; // Get the user ID from the authenticated request
+    const ideas = await Idea.find({ creator: { $ne: userId } }).populate('creator', 'name');
+    res.status(200).json(ideas);
+  } catch (error) {
+    console.error('Error fetching other users\' ideas:', error);
+    res.status(500).json({ message: 'Error fetching other users\' ideas', error: error.message });
+  }
+});
+
+// Route to get user's own ideas
 app.get('/api/user/ideas', auth, async (req, res) => {
   try {
-    const ideas = await Idea.find({ creator: req.userId }).select('title description targetAudience industry createdAt');
-    res.json(ideas);
+    const ideas = await Idea.find({ creator: req.userId });
+    res.status(200).json(ideas);
   } catch (error) {
-    console.error('Fetch User Ideas Error:', error);
-    res.status(500).json({ message: 'Error fetching user ideas', error: error.message });
-  }
-});
-
-// Route to generate report for a specific idea
-app.get('/api/ideas/:id/report', auth, async (req, res) => {
-  try {
-    const idea = await Idea.findById(req.params.id).populate('votes.user', 'name');
-    if (!idea) {
-      return res.status(404).json({ message: 'Idea not found' });
-    }
-    
-    // Check if the authenticated user is the creator of the idea
-    if (idea.creator.toString() !== req.userId) {
-      return res.status(403).json({ message: 'You can only generate reports for your own ideas' });
-    }
-
-    const pdfBuffer = await generateReport(idea);
-    
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename=idea_report_${idea._id}.pdf`);
-    res.send(pdfBuffer);
-  } catch (error) {
-    console.error('Generate Report Error:', error);
-    res.status(500).json({ message: 'Error generating report', error: error.message });
+    res.status(500).json({ message: 'Error fetching your ideas', error: error.message });
   }
 });
 
 // Get all ideas route
 app.get('/api/ideas', async (req, res) => {
   try {
-    console.log('Fetching all ideas...');
-    const ideas = await Idea.find().populate('creator', 'name email').sort({ createdAt: -1 });
-    console.log(`Successfully fetched ${ideas.length} ideas`);
-    res.json(ideas);
+    const ideas = await Idea.find().populate('creator', 'name');
+    res.status(200).json(ideas);
   } catch (error) {
-    console.error('Fetch Ideas Error:', error);
-    res.status(500).json({ message: 'Error fetching ideas', error: error.message });
+    res.status(500).json({ message: 'Failed to fetch ideas. Please try again.' });
   }
 });
 
 // Get single idea route
 app.get('/api/ideas/:id', auth, async (req, res) => {
   try {
-    const idea = await Idea.findById(req.params.id).populate('creator', 'name email');
+    const idea = await Idea.findById(req.params.id).populate('creator', 'name');
     if (!idea) {
       return res.status(404).json({ message: 'Idea not found' });
     }
-    res.json(idea);
+    res.status(200).json(idea);
   } catch (error) {
-    console.error('Fetch Idea Error:', error);
-    res.status(500).json({ message: 'Error fetching idea', error: error.message });
+    res.status(500).json({ message: 'Failed to fetch idea. Please try again.' });
   }
 });
 
 // Vote on an idea route
 app.post('/api/ideas/:id/vote', auth, async (req, res) => {
+  const { score, voterType, location, comment } = req.body;
   try {
-    const { id } = req.params;
-    const { score, voterType, location, comment } = req.body;
-
-    console.log('Received vote data:', { score, voterType, location, comment });
-
-    if (score < 1 || score > 10) {
-      return res.status(400).json({ message: 'Invalid vote score. Must be between 1 and 10.' });
-    }
-
-    if (!['General Enthusiast', 'Industry Expert', 'Experienced Entrepreneur', 'Potential Customer/User'].includes(voterType)) {
-      return res.status(400).json({ message: 'Invalid voter type.' });
-    }
-
-    const idea = await Idea.findById(id);
+    const idea = await Idea.findById(req.params.id);
     if (!idea) {
       return res.status(404).json({ message: 'Idea not found' });
     }
 
-    const existingVoteIndex = idea.votes.findIndex(vote => vote.user.toString() === req.userId);
-
-    const voteData = { user: req.userId, score, voterType, location, comment };
-    console.log('Saving vote data:', voteData);
-
-    if (existingVoteIndex !== -1) {
-      // Update existing vote
-      idea.votes[existingVoteIndex] = voteData;
-    } else {
-      // Add new vote
-      idea.votes.push(voteData);
-    }
-
+    idea.votes.push({ user: req.userId, score, voterType, location, comment });
     await idea.save();
-    console.log('Updated idea:', idea);
-
-    res.json({ idea });
+    res.status(200).json({ message: 'Vote submitted successfully', idea });
   } catch (error) {
-    console.error('Vote Error:', error);
-    res.status(500).json({ message: 'Error voting on idea', error: error.message });
+    res.status(500).json({ message: 'Failed to submit vote. Please try again.' });
   }
 });
 
@@ -265,17 +203,24 @@ app.delete('/api/ideas/:id', auth, async (req, res) => {
     if (!idea) {
       return res.status(404).json({ message: 'Idea not found' });
     }
-
-    // Check if the authenticated user is the creator of the idea
     if (idea.creator.toString() !== req.userId) {
-      return res.status(403).json({ message: 'You can only delete your own ideas' });
+      return res.status(403).json({ message: 'You do not have permission to delete this idea' });
     }
 
-    await Idea.findByIdAndDelete(req.params.id);
-    res.json({ message: 'Idea deleted successfully' });
+    await idea.remove();
+    res.status(200).json({ message: 'Idea deleted successfully' });
   } catch (error) {
-    console.error('Delete Idea Error:', error);
-    res.status(500).json({ message: 'Error deleting idea', error: error.message });
+    res.status(500).json({ message: 'Failed to delete idea. Please try again.' });
+  }
+});
+
+// Route to generate report for a specific idea
+app.get('/api/ideas/:id/report', auth, async (req, res) => {
+  try {
+    const report = await generateReport(req.params.id);
+    res.status(200).json(report);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to generate report. Please try again.' });
   }
 });
 
