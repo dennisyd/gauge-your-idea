@@ -21,7 +21,7 @@ app.use((req, res, next) => {
 
 // MongoDB connection
 const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost/ideaFeedbackPlatform';
-mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect(mongoURI)
   .then(() => console.log('Connected to MongoDB'))
   .catch(err => console.error('Could not connect to MongoDB', err));
 
@@ -135,16 +135,77 @@ app.post('/api/ideas', auth, async (req, res) => {
 });
 
 // Route to get ideas excluding those from the logged-in user
+// Route to get ideas excluding those from the logged-in user
 app.get('/api/ideas/other-users', auth, async (req, res) => {
   try {
-    const userId = req.userId; // Get the user ID from the authenticated request
-    const ideas = await Idea.find({ creator: { $ne: userId } }).populate('creator', 'name');
+    const userId = req.userId;
+    const sortOption = req.query.sort;
+
+    let sortCriteria = {};
+
+    switch (sortOption) {
+      case 'recent':
+        sortCriteria = { createdAt: -1 }; // Sort by most recent
+        break;
+      case 'old':
+        sortCriteria = { createdAt: 1 }; // Sort by oldest
+        break;
+      case 'most-voted':
+        sortCriteria = { votesCount: -1 }; // Sort by most votes
+        break;
+      case 'least-voted':
+        sortCriteria = { votesCount: 1 }; // Sort by least votes
+        break;
+      case 'title':
+        sortCriteria = { title: 1 }; // Sort alphabetically by title
+        break;
+      case 'target-audience':
+        sortCriteria = { 'targetAudienceLower': 1 }; // Sort alphabetically by target audience (ignoring case)
+        break;
+      case 'industry':
+        sortCriteria = { 'industryLower': 1 }; // Sort alphabetically by industry (ignoring case)
+        break;
+      default:
+        sortCriteria = { createdAt: -1 }; // Default to most recent
+    }
+
+    // Use aggregation to add a field for the vote count and to handle case-insensitive sorting
+    const ideas = await Idea.aggregate([
+      {
+        $match: {
+          creator: { $ne: mongoose.Types.ObjectId(userId) } // Exclude ideas created by the current user
+        }
+      },
+      {
+        $addFields: {
+          votesCount: { $size: "$votes" }, // Add a field to calculate the number of votes
+          targetAudienceLower: { $toLower: "$targetAudience" }, // Add lowercase version for case-insensitive sorting
+          industryLower: { $toLower: "$industry" } // Add lowercase version for case-insensitive sorting
+        }
+      },
+      {
+        $sort: sortCriteria // Sort based on the selected criteria
+      },
+      {
+        $project: {
+          title: 1,
+          description: 1,
+          targetAudience: 1,
+          industry: 1,
+          createdAt: 1,
+          votesCount: 1,
+          creator: 1
+        }
+      }
+    ]);
+
     res.status(200).json(ideas);
   } catch (error) {
     console.error('Error fetching other users\' ideas:', error);
     res.status(500).json({ message: 'Error fetching other users\' ideas', error: error.message });
   }
 });
+
 
 // Route to get user's own ideas
 app.get('/api/user/ideas', auth, async (req, res) => {
