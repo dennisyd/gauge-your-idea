@@ -1,4 +1,5 @@
-// File: src/pages/SubmitIdea.js
+// SubmitIdea.jsx
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -21,12 +22,22 @@ function SubmitIdea() {
       return;
     }
 
+    if (!targetAudience || !industry) {
+      setError('Please select both Target Audience and Industry.');
+      return;
+    }
+
     try {
       setLoading(true);
       setError('');
       await axios.post(
         '/api/ideas',
-        { title, description, targetAudience, industry },
+        {
+          title,
+          description,
+          targetAudience,
+          industry,
+        },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       navigate('/');
@@ -40,11 +51,12 @@ function SubmitIdea() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <h1 className="text-3xl font-bold mb-6">Submit Your Idea</h1>
-      {error && <p className="text-red-500 mb-4">{error}</p>}
-      <form onSubmit={handleSubmit} className="bg-white p-6 rounded shadow">
-        <div className="mb-4">
+    <div className="max-w-2xl mx-auto mt-10">
+      <h1 className="text-3xl font-bold mb-6 text-center">Submit Your Idea</h1>
+      {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
+      <form onSubmit={handleSubmit} className="bg-white p-8 rounded shadow-lg">
+        {/* Title Field */}
+        <div className="mb-6">
           <label
             className="block text-gray-700 text-sm font-bold mb-2"
             htmlFor="title"
@@ -58,10 +70,12 @@ function SubmitIdea() {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             required
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            className="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring focus:ring-blue-300"
           />
         </div>
-        <div className="mb-4">
+
+        {/* Description Field */}
+        <div className="mb-6">
           <label
             className="block text-gray-700 text-sm font-bold mb-2"
             htmlFor="description"
@@ -75,26 +89,36 @@ function SubmitIdea() {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             required
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            className="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring focus:ring-blue-300"
           ></textarea>
         </div>
-        <div className="mb-4">
+
+        {/* Target Audience Dropdown */}
+        <div className="mb-6">
           <label
             className="block text-gray-700 text-sm font-bold mb-2"
             htmlFor="targetAudience"
           >
             Target Audience
           </label>
-          <input
+          <select
             id="targetAudience"
-            type="text"
-            placeholder="Who is this idea for?"
             value={targetAudience}
             onChange={(e) => setTargetAudience(e.target.value)}
             required
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-          />
+            className="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring focus:ring-blue-300"
+          >
+            <option value="" disabled>
+              Select Target Audience
+            </option>
+            <option value="General Enthusiast">General Enthusiast</option>
+            <option value="Industry Expert">Industry Expert</option>
+            <option value="Experienced Entrepreneur">Experienced Entrepreneur</option>
+            <option value="Potential Customer/User">Potential Customer/User</option>
+          </select>
         </div>
+
+        {/* Industry Dropdown */}
         <div className="mb-6">
           <label
             className="block text-gray-700 text-sm font-bold mb-2"
@@ -102,21 +126,32 @@ function SubmitIdea() {
           >
             Industry
           </label>
-          <input
+          <select
             id="industry"
-            type="text"
-            placeholder="Related industry"
             value={industry}
             onChange={(e) => setIndustry(e.target.value)}
             required
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-          />
+            className="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring focus:ring-blue-300"
+          >
+            <option value="" disabled>
+              Select Industry
+            </option>
+            <option value="Technology">Technology</option>
+            <option value="Healthcare">Healthcare</option>
+            <option value="Finance">Finance</option>
+            <option value="Education">Education</option>
+            <option value="Retail">Retail</option>
+            <option value="Gaming">Gaming</option>
+            <option value="Other">Other</option>
+          </select>
         </div>
+
+        {/* Submit Button */}
         <div className="flex items-center justify-between">
           <button
             type="submit"
             disabled={loading}
-            className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ${
+            className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring focus:ring-blue-300 ${
               loading ? 'opacity-50 cursor-not-allowed' : ''
             }`}
           >
