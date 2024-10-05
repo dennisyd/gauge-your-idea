@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import axios from 'axios';
+import Navbar from '../components/Navbar';  // Import the updated Navbar component
 
 function PersonalIdeas() {
   const [ideas, setIdeas] = useState([]);
@@ -36,34 +37,48 @@ function PersonalIdeas() {
     }
   };
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div className="text-red-500">{error}</div>;
+  if (loading) return <div className="flex justify-center items-center h-screen">Loading...</div>;
+  if (error) return <div className="text-red-500 text-center mt-4">{error}</div>;
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">My Ideas</h1>
-      {ideas.length === 0 ? (
-        <p>You haven't submitted any ideas yet.</p>
-      ) : (
-        <ul className="space-y-4">
-          {ideas.map(idea => (
-            <li key={idea._id} className="border p-4 rounded">
-              <h2 className="text-xl font-semibold">{idea.title}</h2>
-              <p>{idea.description}</p>
-              <p>Target Audience: {idea.targetAudience}</p>
-              <p>Industry: {idea.industry}</p>
-              <p>Created: {new Date(idea.createdAt).toLocaleDateString()}</p>
-              <button
-                onClick={() => deleteIdea(idea._id)}
-                className="mt-2 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+    <>
+      <Navbar /> {/* Include the Navbar at the top */}
+      <div className="flex flex-col items-center min-h-screen bg-gray-100 p-6">
+        <h1 className="text-4xl font-semibold mb-8">My Ideas</h1>
+        {ideas.length === 0 ? (
+          <p className="text-lg text-gray-600">You haven't submitted any ideas yet.</p>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-6xl">
+            {ideas.map(idea => (
+              <div
+                key={idea._id}
+                className="bg-white p-6 rounded-lg shadow-md border border-gray-200 hover:shadow-lg transition-shadow duration-300 relative"
               >
-                Delete
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
+                <h2 className="text-2xl font-bold mb-2 text-blue-900">{idea.title}</h2>
+                <p className="text-gray-600 mb-4">{idea.description}</p>
+                <div className="mb-4 space-y-1">
+                  <p className="text-sm text-gray-700">
+                    <strong>Target Audience:</strong> {idea.targetAudience}
+                  </p>
+                  <p className="text-sm text-gray-700">
+                    <strong>Industry:</strong> {idea.industry}
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    <strong>Created:</strong> {new Date(idea.createdAt).toLocaleDateString()}
+                  </p>
+                </div>
+                <button
+                  onClick={() => deleteIdea(idea._id)}
+                  className="bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 transition duration-300 absolute bottom-4 right-4"
+                >
+                  Delete
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </>
   );
 }
 

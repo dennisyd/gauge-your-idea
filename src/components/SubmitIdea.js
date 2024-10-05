@@ -1,10 +1,12 @@
-// src/components/SubmitIdea.js
 import React, { useState, useCallback, useContext } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import Navbar from '../components/Navbar';
 
 function SubmitIdea() {
   const { auth } = useContext(AuthContext);
+  const navigate = useNavigate();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [targetAudience, setTargetAudience] = useState('');
@@ -13,7 +15,6 @@ function SubmitIdea() {
   const [success, setSuccess] = useState('');
 
   const sanitizeInput = useCallback((input) => {
-    // Remove any non-printable characters
     return input.replace(/[^\x20-\x7E]/g, '').trim();
   }, []);
 
@@ -46,13 +47,6 @@ function SubmitIdea() {
         throw new Error('No authentication token found');
       }
 
-      console.log('Submitting idea:', {
-        sanitizedTitle,
-        sanitizedDescription,
-        sanitizedTargetAudience,
-        sanitizedIndustry,
-      });
-
       const response = await axios.post(
         '/api/ideas',
         {
@@ -66,14 +60,15 @@ function SubmitIdea() {
         }
       );
 
-      console.log('Server response:', response);
-
       if (response.status === 201) {
         setSuccess('Idea submitted successfully!');
         setTitle('');
         setDescription('');
         setTargetAudience('');
         setIndustry('');
+        setTimeout(() => {
+          navigate('/app');
+        }, 1500);
       } else {
         throw new Error('Unexpected response from server');
       }
@@ -84,78 +79,87 @@ function SubmitIdea() {
   };
 
   return (
-    <div className="max-w-lg mx-auto">
-      <h2 className="text-2xl font-bold mb-4">Submit a New Idea</h2>
-      {error && <div className="text-red-500 mb-4">{error}</div>}
-      {success && <div className="text-green-500 mb-4">{success}</div>}
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {/* Title */}
-        <div>
-          <label htmlFor="title" className="block text-sm font-medium">
-            Title:
-          </label>
-          <input
-            id="title"
-            type="text"
-            className="w-full border px-3 py-2 rounded"
-            value={title}
-            onChange={handleChange(setTitle)}
-            required
-            maxLength={100}
-          />
+    <>
+      <Navbar /> {/* Make sure the Navbar is correctly added */}
+      <div className="flex items-center justify-center min-h-screen bg-gray-100 p-8">
+        <div className="bg-white w-full max-w-3xl p-10 rounded-lg shadow-md border border-gray-200">
+          <h2 className="text-3xl font-bold text-center mb-8 text-blue-900">Submit Your Idea</h2>
+          {error && <div className="text-red-500 text-center mb-4">{error}</div>}
+          {success && <div className="text-green-500 text-center mb-4">{success}</div>}
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Title */}
+            <div>
+              <label htmlFor="title" className="block text-sm font-medium text-gray-800 mb-1">
+                Title
+              </label>
+              <input
+                id="title"
+                type="text"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value={title}
+                onChange={handleChange(setTitle)}
+                required
+                maxLength={100}
+                placeholder="Enter your idea title"
+              />
+            </div>
+            {/* Description */}
+            <div>
+              <label htmlFor="description" className="block text-sm font-medium text-gray-800 mb-1">
+                Description
+              </label>
+              <textarea
+                id="description"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value={description}
+                onChange={handleChange(setDescription)}
+                required
+                rows="4"
+                maxLength={1000}
+                placeholder="Describe your idea"
+              ></textarea>
+            </div>
+            {/* Target Audience */}
+            <div>
+              <label htmlFor="targetAudience" className="block text-sm font-medium text-gray-800 mb-1">
+                Target Audience
+              </label>
+              <input
+                id="targetAudience"
+                type="text"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value={targetAudience}
+                onChange={handleChange(setTargetAudience)}
+                maxLength={100}
+                placeholder="Who is this idea for?"
+              />
+            </div>
+            {/* Industry */}
+            <div>
+              <label htmlFor="industry" className="block text-sm font-medium text-gray-800 mb-1">
+                Industry
+              </label>
+              <input
+                id="industry"
+                type="text"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value={industry}
+                onChange={handleChange(setIndustry)}
+                maxLength={100}
+                placeholder="Related industry"
+              />
+            </div>
+            {/* Submit Button */}
+            <button
+              type="submit"
+              className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition duration-300 font-semibold"
+            >
+              Submit Idea
+            </button>
+          </form>
         </div>
-        {/* Description */}
-        <div>
-          <label htmlFor="description" className="block text-sm font-medium">
-            Description:
-          </label>
-          <textarea
-            id="description"
-            className="w-full border px-3 py-2 rounded"
-            value={description}
-            onChange={handleChange(setDescription)}
-            required
-            rows="4"
-            maxLength={1000}
-          ></textarea>
-        </div>
-        {/* Target Audience */}
-        <div>
-          <label htmlFor="targetAudience" className="block text-sm font-medium">
-            Target Audience:
-          </label>
-          <input
-            id="targetAudience"
-            type="text"
-            className="w-full border px-3 py-2 rounded"
-            value={targetAudience}
-            onChange={handleChange(setTargetAudience)}
-            maxLength={100}
-          />
-        </div>
-        {/* Industry */}
-        <div>
-          <label htmlFor="industry" className="block text-sm font-medium">
-            Industry:
-          </label>
-          <input
-            id="industry"
-            type="text"
-            className="w-full border px-3 py-2 rounded"
-            value={industry}
-            onChange={handleChange(setIndustry)}
-            maxLength={100}
-          />
-        </div>
-        {/* Submit Button */}
-        <button
-          type="submit"
-          className="w-full bg-green-500 text-white py-2 rounded hover:bg-green-600"
-        >
-          Submit Idea
-        </button>
-      </form>
-    </div>
+      </div>
+    </>
   );
 }
 
