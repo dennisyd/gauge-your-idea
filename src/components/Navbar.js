@@ -16,9 +16,10 @@ function Navbar() {
     <nav className="bg-blue-900 p-4 shadow-md">
       <div className="container mx-auto flex justify-between items-center">
         <div className="flex items-center space-x-4">
-          {location.pathname !== '/' && (
+          {/* Back button that navigates to "/app" instead of going back in browser history */}
+          {location.pathname !== '/' && location.pathname !== '/app' && (
             <button
-              onClick={() => navigate(-1)}
+              onClick={() => navigate('/app')}
               className="text-white bg-blue-700 px-3 py-2 rounded hover:bg-blue-800 transition duration-300"
             >
               Back

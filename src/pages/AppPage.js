@@ -1,5 +1,3 @@
-// File: src/pages/AppPage.js
-
 import React, { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
@@ -10,45 +8,6 @@ function AppPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-100 to-blue-50">
-      {/* Blue Header / Navbar */}
-      <nav className="bg-blue-700 shadow-lg">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-white text-3xl font-bold">IdeaVote</h1>
-          <div className="flex items-center space-x-6">
-            <button
-              onClick={() => navigate('/home')}
-              className="text-white hover:text-blue-300 font-semibold"
-            >
-              Home
-            </button>
-            <button
-              onClick={() => navigate('/submit-idea')}
-              className="text-white hover:text-blue-300 font-semibold"
-            >
-              Submit Idea
-            </button>
-            <button
-              onClick={() => navigate('/my-ideas')}
-              className="text-white hover:text-blue-300 font-semibold"
-            >
-              My Ideas
-            </button>
-            <button
-              onClick={() => navigate('/reports')}
-              className="text-white hover:text-blue-300 font-semibold"
-            >
-              Reports
-            </button>
-            <button
-              onClick={logout}
-              className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg shadow-md transition-all"
-            >
-              Logout
-            </button>
-          </div>
-        </div>
-      </nav>
-
       {/* Main Content */}
       <div className="container mx-auto px-6 py-12">
         <div className="flex flex-wrap justify-center gap-12">
