@@ -58,9 +58,6 @@ function PersonalIdeas() {
               <p className="text-gray-600 mb-4">{idea.description}</p>
               <div className="mb-4 space-y-1">
                 <p className="text-sm text-gray-700">
-                  <strong>Target Audience:</strong> {idea.targetAudience}
-                </p>
-                <p className="text-sm text-gray-700">
                   <strong>Industry:</strong> {idea.industry}
                 </p>
                 <p className="text-sm text-gray-500">

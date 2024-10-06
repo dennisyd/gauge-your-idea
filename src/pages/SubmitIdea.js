@@ -1,5 +1,3 @@
-// SubmitIdea.jsx
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -7,7 +5,6 @@ import axios from 'axios';
 function SubmitIdea() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [targetAudience, setTargetAudience] = useState('');
   const [industry, setIndustry] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -22,8 +19,8 @@ function SubmitIdea() {
       return;
     }
 
-    if (!targetAudience || !industry) {
-      setError('Please select both Target Audience and Industry.');
+    if (!industry) {
+      setError('Please select an Industry.');
       return;
     }
 
@@ -35,7 +32,6 @@ function SubmitIdea() {
         {
           title,
           description,
-          targetAudience,
           industry,
         },
         { headers: { Authorization: `Bearer ${token}` } }
@@ -91,31 +87,6 @@ function SubmitIdea() {
             required
             className="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring focus:ring-blue-300"
           ></textarea>
-        </div>
-
-        {/* Target Audience Dropdown */}
-        <div className="mb-6">
-          <label
-            className="block text-gray-700 text-sm font-bold mb-2"
-            htmlFor="targetAudience"
-          >
-            Target Audience
-          </label>
-          <select
-            id="targetAudience"
-            value={targetAudience}
-            onChange={(e) => setTargetAudience(e.target.value)}
-            required
-            className="shadow border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring focus:ring-blue-300"
-          >
-            <option value="" disabled>
-              Select Target Audience
-            </option>
-            <option value="General Enthusiast">General Enthusiast</option>
-            <option value="Industry Expert">Industry Expert</option>
-            <option value="Experienced Entrepreneur">Experienced Entrepreneur</option>
-            <option value="Potential Customer/User">Potential Customer/User</option>
-          </select>
         </div>
 
         {/* Industry Dropdown */}
