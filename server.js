@@ -134,7 +134,7 @@ app.post('/api/ideas', auth, async (req, res) => {
   }
 });
 
-// Route to get ideas excluding those from the logged-in user
+// Get ideas excluding those from the logged-in user
 app.get('/api/ideas/other-users', auth, async (req, res) => {
   try {
     const userId = req.userId;
@@ -210,9 +210,7 @@ app.get('/api/ideas/other-users', auth, async (req, res) => {
   }
 });
 
-
-
-// Route to get user's own ideas
+// Get user's own ideas
 app.get('/api/user/ideas', auth, async (req, res) => {
   try {
     const ideas = await Idea.aggregate([
@@ -250,8 +248,7 @@ app.get('/api/user/ideas', auth, async (req, res) => {
   }
 });
 
-
-// Get all ideas route
+// Get all ideas
 app.get('/api/ideas', async (req, res) => {
   try {
     const ideas = await Idea.find().populate('creator', 'name');
@@ -261,7 +258,7 @@ app.get('/api/ideas', async (req, res) => {
   }
 });
 
-// Get single idea route
+// Get single idea
 app.get('/api/ideas/:id', auth, async (req, res) => {
   try {
     const idea = await Idea.findById(req.params.id).populate('creator', 'name');
@@ -274,7 +271,7 @@ app.get('/api/ideas/:id', auth, async (req, res) => {
   }
 });
 
-// Vote on an idea route
+// Vote on an idea
 app.post('/api/ideas/:id/vote', auth, async (req, res) => {
   const { score, voterType, location, comment } = req.body;
   try {
@@ -291,7 +288,7 @@ app.post('/api/ideas/:id/vote', auth, async (req, res) => {
   }
 });
 
-// Delete idea route
+// Delete idea
 app.delete('/api/ideas/:id', auth, async (req, res) => {
   try {
     console.log('Attempting to delete idea:', req.params.id);
@@ -315,6 +312,26 @@ app.delete('/api/ideas/:id', auth, async (req, res) => {
   } catch (error) {
     console.error('Error deleting idea:', error);
     res.status(500).json({ message: 'Failed to delete idea. Please try again.' });
+  }
+});
+
+// Generate report for a specific idea
+app.get('/api/ideas/:id/report', auth, async (req, res) => {
+  try {
+    console.log('Received request to generate report for ID:', req.params.id);
+    const idea = await Idea.findById(req.params.id).populate('votes.user', 'name');
+    if (!idea) {
+      console.error('Idea not found:', req.params.id);
+      return res.status(404).json({ message: 'Idea not found' });
+    }
+
+    console.log('Idea found, generating report...');
+    const report = await generateReport(idea);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.status(200).send(report);
+  } catch (error) {
+    console.error('Error generating report:', error);
+    res.status(500).json({ message: 'Failed to generate report. Please try again.' });
   }
 });
 

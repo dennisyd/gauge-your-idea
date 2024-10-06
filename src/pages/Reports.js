@@ -34,12 +34,11 @@ function Reports() {
     try {
       setGeneratingReport(true);
       const token = localStorage.getItem('token');
-      console.log('Generating report for idea:', ideaId); // Debugging line
       const response = await axios.get(`/api/ideas/${ideaId}/report`, {
         headers: { Authorization: `Bearer ${token}` },
-        responseType: 'blob'
+        responseType: 'blob',
       });
-      
+  
       const file = new Blob([response.data], { type: 'application/pdf' });
       const fileURL = URL.createObjectURL(file);
       const link = document.createElement('a');
@@ -49,12 +48,13 @@ function Reports() {
       URL.revokeObjectURL(fileURL);
       setError(null);
     } catch (err) {
-      console.error('Error generating report:', err); // Debugging line
+      console.error('Error generating report:', err);
       setError(err.response?.data?.message || 'An error occurred while generating the report');
     } finally {
       setGeneratingReport(false);
     }
   };
+  
 
   if (loading) return <div className="text-center py-4">Loading your ideas...</div>;
 

@@ -40,7 +40,7 @@ function SubmitIdea() {
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      navigate('/');
+      navigate('/app');
     } catch (error) {
       setError(
         error.response?.data?.message || 'Idea submission failed. Please try again.'
