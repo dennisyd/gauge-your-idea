@@ -134,6 +134,35 @@ app.post('/api/ideas', auth, async (req, res) => {
   }
 });
 
+// Update idea
+app.put('/api/ideas/:id', auth, async (req, res) => {
+  const { title, description, industry } = req.body;
+  try {
+    const idea = await Idea.findById(req.params.id);
+
+    if (!idea) {
+      return res.status(404).json({ message: 'Idea not found' });
+    }
+
+    // Ensure that the user is the creator of the idea
+    if (idea.creator.toString() !== req.userId) {
+      return res.status(403).json({ message: 'You do not have permission to update this idea' });
+    }
+
+    // Update the idea's fields
+    idea.title = title || idea.title;
+    idea.description = description || idea.description;
+    idea.industry = industry || idea.industry;
+
+    await idea.save();
+    res.status(200).json(idea);
+  } catch (error) {
+    console.error('Error updating idea:', error);
+    res.status(500).json({ message: 'Failed to update idea. Please try again.' });
+  }
+});
+
+
 // Get ideas excluding those from the logged-in user
 app.get('/api/ideas/other-users', auth, async (req, res) => {
   try {
