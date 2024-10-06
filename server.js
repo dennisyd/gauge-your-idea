@@ -294,28 +294,27 @@ app.post('/api/ideas/:id/vote', auth, async (req, res) => {
 // Delete idea route
 app.delete('/api/ideas/:id', auth, async (req, res) => {
   try {
+    console.log('Attempting to delete idea:', req.params.id);
+    console.log('User ID:', req.userId);
+
     const idea = await Idea.findById(req.params.id);
     if (!idea) {
+      console.log('Idea not found');
       return res.status(404).json({ message: 'Idea not found' });
     }
+
+    console.log('Idea creator:', idea.creator.toString());
     if (idea.creator.toString() !== req.userId) {
+      console.log('Permission denied');
       return res.status(403).json({ message: 'You do not have permission to delete this idea' });
     }
 
-    await idea.remove();
+    await Idea.findByIdAndDelete(req.params.id);
+    console.log('Idea deleted successfully');
     res.status(200).json({ message: 'Idea deleted successfully' });
   } catch (error) {
+    console.error('Error deleting idea:', error);
     res.status(500).json({ message: 'Failed to delete idea. Please try again.' });
-  }
-});
-
-// Route to generate report for a specific idea
-app.get('/api/ideas/:id/report', auth, async (req, res) => {
-  try {
-    const report = await generateReport(req.params.id);
-    res.status(200).json(report);
-  } catch (error) {
-    res.status(500).json({ message: 'Failed to generate report. Please try again.' });
   }
 });
 

@@ -9,6 +9,7 @@ export const AuthProvider = ({ children }) => {
   });
 
   const login = (token, userId) => {
+    console.log('Logging in with token:', token);
     localStorage.setItem('token', token);
     localStorage.setItem('userId', userId);
     setAuth({ token, userId });

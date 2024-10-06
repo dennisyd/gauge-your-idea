@@ -27,12 +27,15 @@ function PersonalIdeas() {
 
   const deleteIdea = async (ideaId) => {
     try {
-      await axios.delete(`/api/ideas/${ideaId}`, {
+      console.log('Deleting idea:', ideaId);
+      const response = await axios.delete(`/api/ideas/${ideaId}`, {
         headers: { Authorization: `Bearer ${auth.token}` }
       });
+      console.log('Delete response:', response.data);
       setIdeas(ideas.filter(idea => idea._id !== ideaId));
     } catch (err) {
-      setError(`Failed to delete idea. ${err.response ? err.response.data.message : err.message}`);
+      console.error('Delete error:', err.response?.data || err.message);
+      setError(`Failed to delete idea. ${err.response?.data?.message || err.message}`);
     }
   };
 
