@@ -4,12 +4,10 @@ import React from 'react';
 
 function AppPageUI({ 
   sortOption, 
-  targetAudienceFilter, 
   industryFilter, 
   ideas, 
   error, 
   handleSortChange, 
-  handleTargetAudienceFilterChange, 
   handleIndustryFilterChange, 
   navigate 
 }) {
@@ -35,25 +33,6 @@ function AppPageUI({
               <option value="most-voted">Most Voted</option>
               <option value="least-voted">Least Voted</option>
               <option value="title">Title</option>
-            </select>
-          </div>
-
-          {/* Target Audience Filter */}
-          <div>
-            <label htmlFor="targetAudienceFilter" className="mr-2 font-semibold text-gray-700">
-              Target Audience:
-            </label>
-            <select
-              id="targetAudienceFilter"
-              value={targetAudienceFilter}
-              onChange={handleTargetAudienceFilterChange}
-              className="p-2 rounded border border-gray-300"
-            >
-              <option value="">All</option>
-              <option value="General Enthusiast">General Enthusiast</option>
-              <option value="Industry Expert">Industry Expert</option>
-              <option value="Experienced Entrepreneur">Experienced Entrepreneur</option>
-              <option value="Potential Customer/User">Potential Customer/User</option>
             </select>
           </div>
 
@@ -98,9 +77,6 @@ function AppPageUI({
                   <h3 className="font-bold text-2xl text-blue-800 mb-4">{idea.title}</h3>
                   <p className="text-gray-700 mb-4">
                     {idea.description.length > 150 ? `${idea.description.substring(0, 150)}...` : idea.description}
-                  </p>
-                  <p className="text-sm text-gray-700">
-                    <strong>Target Audience:</strong> {idea.targetAudience}
                   </p>
                   <p className="text-sm text-gray-700">
                     <strong>Industry:</strong> {idea.industry}

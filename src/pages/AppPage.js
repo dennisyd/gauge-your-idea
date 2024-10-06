@@ -11,7 +11,6 @@ function AppPage() {
   const { auth } = useContext(AuthContext);
   const [ideas, setIdeas] = useState([]);
   const [sortOption, setSortOption] = useState('recent');
-  const [targetAudienceFilter, setTargetAudienceFilter] = useState('');
   const [industryFilter, setIndustryFilter] = useState('');
   const [error, setError] = useState('');
 
@@ -21,7 +20,6 @@ function AppPage() {
         const fetchedIdeas = await fetchIdeas({
           token: auth.token,
           sortOption,
-          targetAudienceFilter,
           industryFilter,
         });
         setIdeas(fetchedIdeas);
@@ -36,14 +34,10 @@ function AppPage() {
     };
 
     getIdeas();
-  }, [sortOption, targetAudienceFilter, industryFilter, auth.token]);
+  }, [sortOption, industryFilter, auth.token]);
 
   const handleSortChange = (event) => {
     setSortOption(event.target.value);
-  };
-
-  const handleTargetAudienceFilterChange = (event) => {
-    setTargetAudienceFilter(event.target.value);
   };
 
   const handleIndustryFilterChange = (event) => {
@@ -53,12 +47,10 @@ function AppPage() {
   return (
     <AppPageUI
       sortOption={sortOption}
-      targetAudienceFilter={targetAudienceFilter}
       industryFilter={industryFilter}
       ideas={ideas}
       error={error}
       handleSortChange={handleSortChange}
-      handleTargetAudienceFilterChange={handleTargetAudienceFilterChange}
       handleIndustryFilterChange={handleIndustryFilterChange}
       navigate={navigate}
     />
