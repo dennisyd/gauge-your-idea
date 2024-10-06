@@ -9,6 +9,7 @@
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.7.7",
     "bcryptjs": "^2.4.3",
+    "chartjs-node-canvas": "^4.1.6",
     "cors": "^2.8.5",
     "express": "^4.21.0",
     "jsonwebtoken": "^9.0.2",

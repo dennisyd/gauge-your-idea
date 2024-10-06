@@ -15,15 +15,15 @@ function Reports() {
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-      console.log('Fetching ideas with token:', token); // Debugging line
+      console.log('Fetching ideas with token:', token);
       const response = await axios.get('/api/user/ideas', {
         headers: { Authorization: `Bearer ${token}` },
       });
-      console.log('Fetched ideas:', response.data); // Debugging line
+      console.log('Fetched ideas:', response.data);
       setIdeas(response.data);
       setError(null);
     } catch (err) {
-      console.error('Error fetching ideas:', err); // Debugging line
+      console.error('Error fetching ideas:', err);
       setError(err.response?.data?.message || 'An error occurred while fetching ideas');
     } finally {
       setLoading(false);
