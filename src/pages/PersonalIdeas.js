@@ -63,6 +63,15 @@ function PersonalIdeas() {
                 <p className="text-sm text-gray-500">
                   <strong>Created:</strong> {new Date(idea.createdAt).toLocaleDateString()}
                 </p>
+                <p className="text-sm text-gray-700">
+                  <strong>Votes:</strong> {idea.votesCount}
+                </p>
+                {/* Conditionally show the average score if it exists and is defined */}
+                {idea.averageScore !== undefined && idea.averageScore !== null && (
+                  <p className="text-sm text-gray-700">
+                    <strong>Score:</strong> {idea.averageScore.toFixed(2)}
+                  </p>
+                )}
               </div>
               <button
                 onClick={() => deleteIdea(idea._id)}

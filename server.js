@@ -215,12 +215,41 @@ app.get('/api/ideas/other-users', auth, async (req, res) => {
 // Route to get user's own ideas
 app.get('/api/user/ideas', auth, async (req, res) => {
   try {
-    const ideas = await Idea.find({ creator: req.userId });
+    const ideas = await Idea.aggregate([
+      {
+        $match: { creator: new mongoose.Types.ObjectId(req.userId) }
+      },
+      {
+        $addFields: {
+          votesCount: { $size: "$votes" },
+          averageScore: {
+            $cond: {
+              if: { $gt: [{ $size: "$votes" }, 0] },
+              then: { $avg: "$votes.score" },
+              else: null
+            }
+          }
+        }
+      },
+      {
+        $project: {
+          title: 1,
+          description: 1,
+          targetAudience: 1,
+          industry: 1,
+          createdAt: 1,
+          votesCount: 1,
+          averageScore: 1
+        }
+      }
+    ]);
+
     res.status(200).json(ideas);
   } catch (error) {
     res.status(500).json({ message: 'Error fetching your ideas', error: error.message });
   }
 });
+
 
 // Get all ideas route
 app.get('/api/ideas', async (req, res) => {
