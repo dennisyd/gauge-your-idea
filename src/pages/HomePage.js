@@ -13,14 +13,14 @@ function HomePage() {
           <Link to="/success-stories" className="hover:text-blue-600">Success Stories</Link>
           <Link to="/pricing" className="hover:text-blue-600">Pricing</Link>
         </nav>
-        <Link to="/app" className="bg-black text-white px-4 py-2 rounded-md hover:bg-gray-800">Get started</Link>
+        <Link to="/register" className="bg-black text-white px-4 py-2 rounded-md hover:bg-gray-800">Get started</Link>
       </header>
 
       {/* Hero Section */}
       <main className="container mx-auto px-4 py-16 text-center">
         <h1 className="text-5xl font-bold mb-4">Validate your ideas with real feedback</h1>
         <p className="text-xl mb-8">Your all-in-one platform for idea validation, expert insights, and market potential analysis</p>
-        <Link to="/app" className="bg-blue-600 text-white px-8 py-3 rounded-md text-lg hover:bg-blue-700">Try Gauge Your Idea now</Link>
+        <Link to="/register" className="bg-blue-600 text-white px-8 py-3 rounded-md text-lg hover:bg-blue-700">Try Gauge Your Idea now</Link>
         
         <div className="mt-16 text-gray-600">Trusted by 10,000+ innovators and entrepreneurs</div>
 
