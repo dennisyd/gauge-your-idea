@@ -8,10 +8,8 @@ function HomePage() {
       <header className="container mx-auto px-4 py-6 flex justify-between items-center">
         <div className="text-2xl font-bold">Gauge Your Idea</div>
         <nav className="hidden md:flex space-x-4">
-          <Link to="/features" className="hover:text-blue-600">Features</Link>
           <Link to="/how-it-works" className="hover:text-blue-600">How It Works</Link>
-          <Link to="/success-stories" className="hover:text-blue-600">Success Stories</Link>
-          <Link to="/pricing" className="hover:text-blue-600">Pricing</Link>
+          <Link to="/sample-report" className="hover:text-blue-600">Sample Report</Link>
         </nav>
         <Link to="/register" className="bg-black text-white px-4 py-2 rounded-md hover:bg-gray-800">Get started</Link>
       </header>

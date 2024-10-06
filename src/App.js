@@ -11,6 +11,8 @@ import IdeaDetails from './pages/IdeaDetails';
 import PersonalIdeas from './pages/PersonalIdeas';
 import Reports from './pages/Reports';
 import AppPage from './pages/AppPage';
+import HowItWorks from './pages/HowItWorks'; // Import HowItWorks page
+import SampleReport from './pages/SampleReport'; // Import the Sample Report component
 import Navbar from './components/Navbar'; // Import Navbar component
 
 function App() {
@@ -35,6 +37,8 @@ function AppRoutes() {
       <Route path="/idea/:id" element={<IdeaDetails />} />
       <Route path="/my-ideas" element={<PersonalIdeas />} />
       <Route path="/reports" element={<Reports />} />
+      <Route path="/how-it-works" element={<HowItWorks />} />
+      <Route path="/sample-report" element={<SampleReport />} /> {/* Add this route */}
     </Routes>
   );
 }
