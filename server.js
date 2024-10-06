@@ -139,6 +139,8 @@ app.get('/api/ideas/other-users', auth, async (req, res) => {
   try {
     const userId = req.userId;
     const sortOption = req.query.sort;
+    const targetAudience = req.query.targetAudience;
+    const industry = req.query.industry;
 
     let sortCriteria = {};
     switch (sortOption) {
@@ -157,29 +159,32 @@ app.get('/api/ideas/other-users', auth, async (req, res) => {
       case 'title':
         sortCriteria = { title: 1 };
         break;
-      case 'target-audience':
-        sortCriteria = { targetAudienceLower: 1 };
-        break;
-      case 'industry':
-        sortCriteria = { industryLower: 1 };
-        break;
       default:
         sortCriteria = { createdAt: -1 };
     }
 
     console.log('Fetching ideas for other users with userId:', userId);
+    console.log('Filters:', { targetAudience, industry });
+
+    let matchCriteria = {
+      creator: { $ne: new mongoose.Types.ObjectId(userId) }
+    };
+
+    if (targetAudience) {
+      matchCriteria.targetAudience = targetAudience;
+    }
+
+    if (industry) {
+      matchCriteria.industry = industry;
+    }
 
     const ideas = await Idea.aggregate([
       {
-        $match: {
-          creator: { $ne: new mongoose.Types.ObjectId(userId) } // Use new keyword
-        }
+        $match: matchCriteria
       },
       {
         $addFields: {
-          votesCount: { $size: "$votes" },
-          targetAudienceLower: { $toLower: "$targetAudience" },
-          industryLower: { $toLower: "$industry" }
+          votesCount: { $size: "$votes" }
         }
       },
       { $sort: sortCriteria },
