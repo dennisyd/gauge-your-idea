@@ -18,22 +18,24 @@ function IdeaDetails() {
   const isLoggedIn = !!localStorage.getItem('token');
 
   useEffect(() => {
-    const fetchIdea = async () => {
-      try {
-        setLoading(true);
-        const token = localStorage.getItem('token');
-        const response = await axios.get(`/api/ideas/${id}`, {
-          headers: token ? { Authorization: `Bearer ${token}` } : {},
-        });
-        setIdea(response.data);
-      } catch (err) {
-        setError(err.response?.data?.message || err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchIdea();
   }, [id]);
+
+  const fetchIdea = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`/api/ideas/${id}`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      setIdea(response.data);
+      setError(null);
+    } catch (err) {
+      setError(err.response?.data?.message || err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleVote = async (e) => {
     e.preventDefault();
@@ -43,18 +45,13 @@ function IdeaDetails() {
       if (!token) {
         throw new Error('No authentication token found');
       }
-      console.log('Submitting vote with data:', { score: parseInt(vote), voterType, location, comment }); // Add this line for debugging
-      const response = await axios.post(
+      await axios.post(
         `/api/ideas/${id}/vote`,
         { score: parseInt(vote), voterType, location, comment },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      console.log('Vote submission response:', response.data); // Add this line for debugging
-      setIdea(response.data.idea);
-      setVote('');
-      setVoterType('');
-      setLocation('');
-      setComment('');
+      // Redirect to /app page upon successful vote
+      navigate('/app');
     } catch (err) {
       setError(err.response?.data?.message || err.message);
     } finally {
@@ -62,8 +59,31 @@ function IdeaDetails() {
     }
   };
 
+  const handleDelete = async () => {
+    if (window.confirm('Are you sure you want to delete this idea? This action cannot be undone.')) {
+      try {
+        const token = localStorage.getItem('token');
+        await axios.delete(`/api/ideas/${id}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        navigate('/'); // Redirect to home page after successful deletion
+      } catch (err) {
+        setError(err.response?.data?.message || err.message);
+      }
+    }
+  };
+
   if (loading) return <div className="text-center mt-8">Loading...</div>;
-  if (error) return <div className="text-center mt-8 text-red-500">Error: {error}</div>;
+  if (error) {
+    return (
+      <div className="text-center mt-8">
+        <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded-md shadow-lg" role="alert">
+          <p className="font-bold">Oops!</p>
+          <p>{error}</p>
+        </div>
+      </div>
+    );
+  }
   if (!idea) return <div className="text-center mt-8">No idea found</div>;
 
   return (
@@ -75,8 +95,16 @@ function IdeaDetails() {
           <p>Target Audience: {idea.targetAudience}</p>
           <p>Industry: {idea.industry}</p>
           {isLoggedIn && <p>Total Votes: {idea.votes.length}</p>}
-          {userId === idea.creator && (
-            <p>Average Score: {(idea.votes.reduce((sum, vote) => sum + vote.score, 0) / idea.votes.length || 0).toFixed(1)}</p>
+          {idea.creator && idea.creator.toString() === userId && (
+            <>
+              <p>Average Score: {(idea.votes.reduce((sum, vote) => sum + vote.score, 0) / idea.votes.length || 0).toFixed(1)}</p>
+              <button
+                onClick={handleDelete}
+                className="mt-4 bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              >
+                Delete Idea
+              </button>
+            </>
           )}
         </div>
       </div>
@@ -95,7 +123,7 @@ function IdeaDetails() {
           voteSubmitting={voteSubmitting}
         />
       ) : (
-        <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-6" role="alert">
+        <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-6 rounded-md shadow-md" role="alert">
           <p className="font-bold">Note</p>
           <p>You must be logged in to vote on this idea.</p>
         </div>

@@ -309,6 +309,13 @@ app.post('/api/ideas/:id/vote', auth, async (req, res) => {
       return res.status(404).json({ message: 'Idea not found' });
     }
 
+    // Check if the user has already voted on this idea
+    const existingVote = idea.votes.find(vote => vote.user.toString() === req.userId);
+    if (existingVote) {
+      return res.status(400).json({ message: 'Sorry, you have already voted on this idea' });
+    }
+
+    // Add the user's vote to the idea
     idea.votes.push({ user: req.userId, score, voterType, location, comment });
     await idea.save();
     res.status(200).json({ message: 'Vote submitted successfully', idea });
@@ -316,6 +323,7 @@ app.post('/api/ideas/:id/vote', auth, async (req, res) => {
     res.status(500).json({ message: 'Failed to submit vote. Please try again.' });
   }
 });
+
 
 // Delete idea
 app.delete('/api/ideas/:id', auth, async (req, res) => {
